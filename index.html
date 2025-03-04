@@ -134,6 +134,8 @@
             drawing = true;
             signatureCtx.beginPath();
             signatureCtx.moveTo(event.offsetX, event.offsetY);
+            signatureCtx.strokeStyle = "red"; // Change signature color
+            signatureCtx.lineWidth = 2;
         }
 
         function draw(event) {
