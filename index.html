@@ -44,6 +44,29 @@
             width: 150px; /* Adjust size as needed */
             margin-bottom: 10px; 
         }
+      
+              /* Pop-up styles */
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .popup-box {
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            max-width: 90%;
+            font-size: 1.5rem;
+        }
+      
     </style>
 </head>
 <body>
@@ -194,7 +217,7 @@
         }
 
         function startCountdown() {
-            let countdown = 10;
+            let countdown = 1;
             const countdownElem = document.getElementById("countdown");
 
             const timer = setInterval(() => {
@@ -209,13 +232,13 @@
         }
 
         function capturePhoto() {
-            finalCanvas.width = 600;
+            finalCanvas.width = 500;
             finalCanvas.height = 400;
             finalCtx.drawImage(video, 0, 0, finalCanvas.width, finalCanvas.height);
             finalCtx.drawImage(signatureCanvas, finalCanvas.width - 80, finalCanvas.height - 50, 80, 40);
             finalCtx.fillStyle = "white";
             finalCtx.font = "12px Arial";
-            finalCtx.fillText("DB Schenker Singapore - EV Launch 27/03/25!", 10, 20);
+            finalCtx.fillText("DB Schenker Singapore - EV Launch 27/03/25", 5, 390);
 
             document.getElementById("final-image").src = finalCanvas.toDataURL("image/png");
             document.getElementById("photo-section").classList.add("hidden");
