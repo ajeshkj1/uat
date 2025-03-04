@@ -126,15 +126,13 @@
 
         loadQuestion();
 
-        signatureCanvas.addEventListener("mousedown", startDrawing);
-        signatureCanvas.addEventListener("mousemove", draw);
-        signatureCanvas.addEventListener("mouseup", stopDrawing);
-        signatureCanvas.addEventListener("touchstart", startDrawing);
-        signatureCanvas.addEventListener("touchmove", draw);
-        signatureCanvas.addEventListener("touchend", stopDrawing);
+        signatureCanvas.addEventListener("pointerdown", startDrawing);
+        signatureCanvas.addEventListener("pointermove", draw);
+        signatureCanvas.addEventListener("pointerup", stopDrawing);
 
         function startDrawing(event) {
             drawing = true;
+            signatureCtx.beginPath();
             signatureCtx.moveTo(event.offsetX, event.offsetY);
         }
 
@@ -164,7 +162,7 @@
             finalCanvas.width = video.videoWidth;
             finalCanvas.height = video.videoHeight;
             finalCtx.drawImage(video, 0, 0, finalCanvas.width, finalCanvas.height);
-            finalCtx.drawImage(signatureCanvas, 10, finalCanvas.height - 160, 150, 150);
+            finalCtx.drawImage(signatureCanvas, finalCanvas.width - 200, finalCanvas.height - 150, 180, 100);
             finalCtx.fillStyle = "white";
             finalCtx.font = "20px Arial";
             finalCtx.fillText("Thank you for attending!", 10, 30);
