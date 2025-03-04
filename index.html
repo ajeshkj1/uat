@@ -165,9 +165,9 @@
             finalCanvas.height = video.videoHeight;
             finalCtx.drawImage(video, 0, 0, finalCanvas.width, finalCanvas.height);
             finalCtx.drawImage(signatureCanvas, finalCanvas.width - 200, finalCanvas.height - 150, 180, 100);
-            finalCtx.fillStyle = "white";
+            finalCtx.fillStyle = "red";
             finalCtx.font = "20px Arial";
-            finalCtx.fillText("Thank you for attending DB Schenker Singapore - EV Launch Event!", 10, 30);
+            finalCtx.fillText("DB Schenker Singapore - EV Launch Event!", 10, 30);
             document.getElementById("final-image").src = finalCanvas.toDataURL("image/png");
             document.getElementById("photo-section").classList.add("hidden");
             document.getElementById("bye-section").classList.remove("hidden");
