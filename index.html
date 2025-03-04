@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DB Schenker - EV Launch Event | Quiz Time</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            text-align: center; 
+            padding: 20px; 
+            background-color: #008080; 
+            color: white;
+            font-size: calc(1rem + 0.5vw); /* Responsive font size */
+        }
+        .container { 
+            max-width: 400px; 
+            margin: auto; 
+            background: lightgrey; 
+            padding: 20px; 
+            border-radius: 10px; 
+            color: black;
+        }
+        h1, h2 { color: #d40000; }
+        canvas { 
+            border: 1px solid #000; 
+            width: 100%; 
+            height: 150px; 
+            background: lightgrey; 
+            touch-action: none; 
+        }
+        .hidden { display: none; }
+        .correct { background-color: lightgreen; }
+        .incorrect { background-color: lightcoral; }
+        button { 
+            margin: 5px; 
+            padding: 10px; 
+            border: none; 
+            cursor: pointer; 
+            font-size: inherit; /* Inherit responsive font size */
+        }
+        .next-btn { background-color: #000; color: white; }
+        #captured-photo {
+            max-width: 100%;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>DB Schenker - EV Launch Event</h1>
+    <h2>Quiz Time</h2>
+    <div class="container">
+        <div id="question-section">
+            <p id="question">Question 1:</p>
+            <div id="answer-container"></div>
+            <button class="next-btn" onclick="nextQuestion()">Next</button>
+        </div>
+
+        <div id="signature-section" class="hidden">
+            <p>Please sign below:</p>
+            <canvas id="signature-pad"></canvas>
+            <button onclick="clearSignature()">Clear</button>
+            <button onclick="submitSignature()">Submit</button>
+        </div>
+
+        <div id="photo-section" class="hidden">
+            <p>Capture your photo:</p>
+            <video id="video" autoplay></video>
+            <button onclick="capturePhoto()">Capture</button>
+            <canvas id="photo-canvas" class="hidden"></canvas>
+            <img id="captured-photo" class="hidden">
+        </div>
+
+        <div id="bye-section" class="hidden">
+            <p>Thank you for attending the event</p>
+            <p>Capture a screenshot or show this message at the counter to collect your token of appreciation</p>
+            <p>Here is your signature:</p>
+            <img id="signature-image" src="" alt="Signature">
+            <p>Here is your captured photo:</p>
+            <img id="final-photo" src="" alt="Captured Photo">
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            { text: "Document for cross-border trucking?", options: ["Passport", "Hotel Booking", "Customs Clearance", "Tour guide"], correct: "Customs Clearance" },
+            { text: "DB Schenker headquarters location?", options: ["Germany", "Singapore", "India", "China"], correct: "Germany" },
+            { text: "What is the largest ocean on Earth?", options: ["Atlantic Ocean", "Indian Ocean", "Arctic Ocean", "Pacific Ocean"], correct: "Pacific Ocean" }
+        ];
+        let currentQuestion = 0;
+        const questionElem = document.getElementById("question");
+        const answerContainer = document.getElementById("answer-container");
+        const questionSection = document.getElementById("question-section");
+        const signatureSection = document.getElementById("signature-section");
+        const photoSection = document.getElementById("photo-section");
+        const byeSection = document.getElementById("bye-section");
+        const canvas = document.getElementById("signature-pad");
+        const ctx = canvas.getContext("2d");
+        let drawing = false;
+
+        function loadQuestion() {
+            if (currentQuestion < questions.length) {
+                questionElem.innerText = `Question ${currentQuestion + 1}: ${questions[currentQuestion].text}`;
+                answerContainer.innerHTML = "";
+                questions[currentQuestion].options.forEach(option => {
+                    const button = document.createElement("button");
+                    button.innerText = option;
+                    button.onclick = () => checkAnswer(option);
+                    answerContainer.appendChild(button);
+                });
+            } else {
+                questionSection.classList.add("hidden");
+                signatureSection.classList.remove("hidden");
+            }
+        }
+
+        function checkAnswer(selected) {
+            answerContainer.innerHTML = "";
+            questions[currentQuestion].options.forEach(option => {
+                const button = document.createElement("button");
+                button.innerText = option;
+                if (option === questions[currentQuestion].correct) {
+                    button.classList.add("correct");
+                } else if (option === selected) {
+                    button.classList.add("incorrect");
+                }
+                answerContainer.appendChild(button);
+            });
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            loadQuestion();
+        }
+
+        loadQuestion();
+
+        function submitSignature() {
+            const signatureImage = document.getElementById("signature-image");
+            signatureImage.src = canvas.toDataURL("image/png");
+            signatureSection.classList.add("hidden");
+            photoSection.classList.remove("hidden");
+            startCamera();
+        }
+
+        function startCamera() {
+            const video = document.getElementById("video");
+            navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
+                video.srcObject = stream;
+            });
+        }
+
+        function capturePhoto() {
+            const video = document.getElementById("video");
+            const photoCanvas = document.getElementById("photo-canvas");
+            const context = photoCanvas.getContext("2d");
+            photoCanvas.width = video.videoWidth;
+            photoCanvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, photoCanvas.width, photoCanvas.height);
+            const capturedPhoto = document.getElementById("captured-photo");
+            capturedPhoto.src = photoCanvas.toDataURL("image/png");
+            capturedPhoto.classList.remove("hidden");
+            photoSection.classList.add("hidden");
+            byeSection.classList.remove("hidden");
+            document.getElementById("final-photo").src = capturedPhoto.src;
+        }
+    </script>
+</body>
+</html>
