@@ -78,9 +78,9 @@
 
     <script>
         const questions = [
-            { text: "Document for cross-border trucking?", options: ["Passport", "Hotel Booking", "Customs Clearance", "Tour guide"], correct: "Customs Clearance" },
-            { text: "DB Schenker's faster and reliable crossborder solution?", options: ["Air", "Ocean", "Land"], correct: "Land" },
-            { text: "What is the largest ocean on Earth?", options: ["Atlantic Ocean", "Indian Ocean", "Arctic Ocean", "Pacific Ocean"], correct: "Pacific Ocean" }
+            { text: "What is the primary document required for customs clearance in cross-border trade?", options: ["Invoice", "Bill of Lading", "Customs Declaration", "Packing List"], correct: "Customs Declaration" },
+            { text: "What is a common challenge faced in cross-border business?", options: ["Language barriers", "Currency exchange rates", "Regulatory compliance","All of the above"], correct: "All of the above" },
+            { text: "Which term refers to the taxes imposed on imported goods?", options: ["Tariffs", "Quotas", "Subsidies", "Duties"], correct: "Tariffs" }
         ];
         let currentQuestion = 0;
         let drawing = false;
@@ -165,7 +165,7 @@
             finalCanvas.width = video.videoWidth;
             finalCanvas.height = video.videoHeight;
             finalCtx.drawImage(video, 0, 0, finalCanvas.width, finalCanvas.height);
-            finalCtx.drawImage(signatureCanvas, finalCanvas.width - 100, finalCanvas.height - 150, 180, 100);
+            finalCtx.drawImage(signatureCanvas, finalCanvas.width - 100, finalCanvas.height - 100, 130, 50);
             finalCtx.fillStyle = "white";
             finalCtx.font = "20px Arial";
             finalCtx.fillText("DB Schenker Singapore - EV Launch Event 27/03/25!", 10, 30);
