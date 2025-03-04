@@ -165,8 +165,8 @@
             finalCanvas.width = video.videoWidth;
             finalCanvas.height = video.videoHeight;
             finalCtx.drawImage(video, 0, 0, finalCanvas.width, finalCanvas.height);
-            finalCtx.drawImage(signatureCanvas, finalCanvas.width - 200, finalCanvas.height - 150, 180, 100);
-            finalCtx.fillStyle = "red";
+            finalCtx.drawImage(signatureCanvas, finalCanvas.width - 100, finalCanvas.height - 150, 180, 100);
+            finalCtx.fillStyle = "white";
             finalCtx.font = "20px Arial";
             finalCtx.fillText("DB Schenker Singapore - EV Launch Event 27/03/25!", 10, 30);
             document.getElementById("final-image").src = finalCanvas.toDataURL("image/png");
