@@ -11,7 +11,7 @@
             padding: 20px; 
             background-color: #008080; 
             color: white;
-            font-size: calc(1rem + 0.5vw); /* Responsive font size */
+            font-size: calc(1rem + 0.5vw);
         }
         .container { 
             max-width: 400px; 
@@ -26,7 +26,7 @@
             border: 1px solid #000; 
             width: 100%; 
             height: 150px; 
-            background: lightgrey; 
+            background: white; 
             touch-action: none; 
         }
         .hidden { display: none; }
@@ -37,10 +37,10 @@
             padding: 10px; 
             border: none; 
             cursor: pointer; 
-            font-size: inherit; /* Inherit responsive font size */
+            font-size: inherit;
         }
         .next-btn { background-color: #000; color: white; }
-        #captured-photo {
+        #final-image {
             max-width: 100%;
             margin-top: 10px;
         }
@@ -67,17 +67,13 @@
             <p>Capture your photo:</p>
             <video id="video" autoplay></video>
             <button onclick="capturePhoto()">Capture</button>
-            <canvas id="photo-canvas" class="hidden"></canvas>
-            <img id="captured-photo" class="hidden">
         </div>
 
         <div id="bye-section" class="hidden">
+            <canvas id="final-canvas" class="hidden"></canvas>
+            <img id="final-image" src="" alt="Final Image">
             <p>Thank you for attending the event</p>
             <p>Capture a screenshot or show this message at the counter to collect your token of appreciation</p>
-            <p>Here is your signature:</p>
-            <img id="signature-image" src="" alt="Signature">
-            <p>Here is your captured photo:</p>
-            <img id="final-photo" src="" alt="Captured Photo">
         </div>
     </div>
 
@@ -88,15 +84,14 @@
             { text: "What is the largest ocean on Earth?", options: ["Atlantic Ocean", "Indian Ocean", "Arctic Ocean", "Pacific Ocean"], correct: "Pacific Ocean" }
         ];
         let currentQuestion = 0;
+        let drawing = false;
         const questionElem = document.getElementById("question");
         const answerContainer = document.getElementById("answer-container");
-        const questionSection = document.getElementById("question-section");
-        const signatureSection = document.getElementById("signature-section");
-        const photoSection = document.getElementById("photo-section");
-        const byeSection = document.getElementById("bye-section");
-        const canvas = document.getElementById("signature-pad");
-        const ctx = canvas.getContext("2d");
-        let drawing = false;
+        const signatureCanvas = document.getElementById("signature-pad");
+        const signatureCtx = signatureCanvas.getContext("2d");
+        const finalCanvas = document.getElementById("final-canvas");
+        const finalCtx = finalCanvas.getContext("2d");
+        const video = document.getElementById("video");
 
         function loadQuestion() {
             if (currentQuestion < questions.length) {
@@ -109,8 +104,8 @@
                     answerContainer.appendChild(button);
                 });
             } else {
-                questionSection.classList.add("hidden");
-                signatureSection.classList.remove("hidden");
+                document.getElementById("question-section").classList.add("hidden");
+                document.getElementById("signature-section").classList.remove("hidden");
             }
         }
 
@@ -119,11 +114,7 @@
             questions[currentQuestion].options.forEach(option => {
                 const button = document.createElement("button");
                 button.innerText = option;
-                if (option === questions[currentQuestion].correct) {
-                    button.classList.add("correct");
-                } else if (option === selected) {
-                    button.classList.add("incorrect");
-                }
+                button.classList.add(option === questions[currentQuestion].correct ? "correct" : "incorrect");
                 answerContainer.appendChild(button);
             });
         }
@@ -135,34 +126,51 @@
 
         loadQuestion();
 
-        function submitSignature() {
-            const signatureImage = document.getElementById("signature-image");
-            signatureImage.src = canvas.toDataURL("image/png");
-            signatureSection.classList.add("hidden");
-            photoSection.classList.remove("hidden");
-            startCamera();
+        signatureCanvas.addEventListener("mousedown", startDrawing);
+        signatureCanvas.addEventListener("mousemove", draw);
+        signatureCanvas.addEventListener("mouseup", stopDrawing);
+        signatureCanvas.addEventListener("touchstart", startDrawing);
+        signatureCanvas.addEventListener("touchmove", draw);
+        signatureCanvas.addEventListener("touchend", stopDrawing);
+
+        function startDrawing(event) {
+            drawing = true;
+            signatureCtx.moveTo(event.offsetX, event.offsetY);
         }
 
-        function startCamera() {
-            const video = document.getElementById("video");
+        function draw(event) {
+            if (!drawing) return;
+            signatureCtx.lineTo(event.offsetX, event.offsetY);
+            signatureCtx.stroke();
+        }
+
+        function stopDrawing() {
+            drawing = false;
+        }
+
+        function clearSignature() {
+            signatureCtx.clearRect(0, 0, signatureCanvas.width, signatureCanvas.height);
+        }
+
+        function submitSignature() {
+            document.getElementById("signature-section").classList.add("hidden");
+            document.getElementById("photo-section").classList.remove("hidden");
             navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
                 video.srcObject = stream;
             });
         }
 
         function capturePhoto() {
-            const video = document.getElementById("video");
-            const photoCanvas = document.getElementById("photo-canvas");
-            const context = photoCanvas.getContext("2d");
-            photoCanvas.width = video.videoWidth;
-            photoCanvas.height = video.videoHeight;
-            context.drawImage(video, 0, 0, photoCanvas.width, photoCanvas.height);
-            const capturedPhoto = document.getElementById("captured-photo");
-            capturedPhoto.src = photoCanvas.toDataURL("image/png");
-            capturedPhoto.classList.remove("hidden");
-            photoSection.classList.add("hidden");
-            byeSection.classList.remove("hidden");
-            document.getElementById("final-photo").src = capturedPhoto.src;
+            finalCanvas.width = video.videoWidth;
+            finalCanvas.height = video.videoHeight;
+            finalCtx.drawImage(video, 0, 0, finalCanvas.width, finalCanvas.height);
+            finalCtx.drawImage(signatureCanvas, 10, finalCanvas.height - 160, 150, 150);
+            finalCtx.fillStyle = "white";
+            finalCtx.font = "20px Arial";
+            finalCtx.fillText("Thank you for attending!", 10, 30);
+            document.getElementById("final-image").src = finalCanvas.toDataURL("image/png");
+            document.getElementById("photo-section").classList.add("hidden");
+            document.getElementById("bye-section").classList.remove("hidden");
         }
     </script>
 </body>
