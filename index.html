@@ -232,13 +232,13 @@
         }
 
         function capturePhoto() {
-            finalCanvas.width = 500;
-            finalCanvas.height = 400;
+            finalCanvas.width = 400;
+            finalCanvas.height = 500;
             finalCtx.drawImage(video, 0, 0, finalCanvas.width, finalCanvas.height);
             finalCtx.drawImage(signatureCanvas, finalCanvas.width - 80, finalCanvas.height - 50, 80, 40);
             finalCtx.fillStyle = "white";
             finalCtx.font = "12px Arial";
-            finalCtx.fillText("DB Schenker Singapore - EV Launch 27/03/25", 5, 390);
+            finalCtx.fillText("DB Schenker Singapore - EV Launch 27/03/25", 5, 490);
 
             document.getElementById("final-image").src = finalCanvas.toDataURL("image/png");
             document.getElementById("photo-section").classList.add("hidden");
