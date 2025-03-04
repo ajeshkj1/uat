@@ -87,6 +87,13 @@
     </div>
 
     <script>
+       function closePopup() {
+            document.getElementById("popup").style.display = "none";
+        }
+
+        window.onload = function () {
+            document.getElementById("popup").style.display = "flex";
+        };
         const questions = [
             { text: "What is the primary document required for customs clearance in cross-border trade?", options: ["Invoice", "Bill of Lading", "Customs Declaration", "Packing List"], correct: "Customs Declaration" },
             { text: "What is a common challenge faced in cross-border business?", options: ["Language barriers", "Currency exchange rates", "Regulatory compliance", "All of the above"], correct: "All of the above" },
