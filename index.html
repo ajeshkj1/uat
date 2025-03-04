@@ -22,13 +22,12 @@
             color: black;
         }
         h1, h2 { color: #d40000; }
-        canvas { 
+        canvas, video { 
             border: 1px solid #000; 
-            width: 100%; 
-            height: 150px; 
             background: white; 
-            touch-action: none; 
         }
+        video { width: 300px; height: 200px; }
+        canvas { width: 100%; height: 150px; touch-action: none; }
         .hidden { display: none; }
         .correct { background-color: lightgreen; }
         .incorrect { background-color: lightcoral; }
@@ -40,19 +39,22 @@
             font-size: inherit;
         }
         .next-btn { background-color: #000; color: white; }
-        #final-image {
-            max-width: 100%;
-            margin-top: 10px;
+        #final-image { max-width: 100%; margin-top: 10px; }
+        .logo { 
+            width: 150px; /* Adjust size as needed */
+            margin-bottom: 10px; 
         }
     </style>
 </head>
 <body>
+    <img src="db-schenker-logo.png" alt="DB Schenker Logo" class="logo"> <!-- Logo added here -->
     <h1>DB Schenker - EV Launch Event</h1>
     <h2>Quiz Time</h2>
     <div class="container">
         <div id="question-section">
             <p id="question">Question 1:</p>
             <div id="answer-container"></div>
+            <p id="result-message"></p>
             <button class="next-btn" onclick="nextQuestion()">Next</button>
         </div>
 
@@ -64,7 +66,7 @@
         </div>
 
         <div id="photo-section" class="hidden">
-            <p>Capture your photo:</p>
+            <p>Capture your photo in <span id="countdown">10</span> seconds...</p>
             <video id="video" autoplay></video>
         </div>
 
@@ -79,13 +81,14 @@
     <script>
         const questions = [
             { text: "What is the primary document required for customs clearance in cross-border trade?", options: ["Invoice", "Bill of Lading", "Customs Declaration", "Packing List"], correct: "Customs Declaration" },
-            { text: "What is a common challenge faced in cross-border business?", options: ["Language barriers", "Currency exchange rates", "Regulatory compliance","All of the above"], correct: "All of the above" },
+            { text: "What is a common challenge faced in cross-border business?", options: ["Language barriers", "Currency exchange rates", "Regulatory compliance", "All of the above"], correct: "All of the above" },
             { text: "Which term refers to the taxes imposed on imported goods?", options: ["Tariffs", "Quotas", "Subsidies", "Duties"], correct: "Tariffs" }
         ];
         let currentQuestion = 0;
         let drawing = false;
         const questionElem = document.getElementById("question");
         const answerContainer = document.getElementById("answer-container");
+        const resultMessage = document.getElementById("result-message");
         const signatureCanvas = document.getElementById("signature-pad");
         const signatureCtx = signatureCanvas.getContext("2d");
         const finalCanvas = document.getElementById("final-canvas");
@@ -96,6 +99,7 @@
             if (currentQuestion < questions.length) {
                 questionElem.innerText = `Question ${currentQuestion + 1}: ${questions[currentQuestion].text}`;
                 answerContainer.innerHTML = "";
+                resultMessage.innerText = "";
                 questions[currentQuestion].options.forEach(option => {
                     const button = document.createElement("button");
                     button.innerText = option;
@@ -110,12 +114,25 @@
 
         function checkAnswer(selected) {
             answerContainer.innerHTML = "";
+            resultMessage.innerText = "";
             questions[currentQuestion].options.forEach(option => {
                 const button = document.createElement("button");
                 button.innerText = option;
-                button.classList.add(option === questions[currentQuestion].correct ? "correct" : "incorrect");
+                if (option === questions[currentQuestion].correct) {
+                    button.classList.add("correct");
+                } else if (option === selected) {
+                    button.classList.add("incorrect");
+                }
                 answerContainer.appendChild(button);
             });
+
+            if (selected === questions[currentQuestion].correct) {
+                resultMessage.innerText = "Correct!";
+                resultMessage.style.color = "green";
+            } else {
+                resultMessage.innerText = "Wrong! The correct answer is: " + questions[currentQuestion].correct;
+                resultMessage.style.color = "red";
+            }
         }
 
         function nextQuestion() {
@@ -133,7 +150,7 @@
             drawing = true;
             signatureCtx.beginPath();
             signatureCtx.moveTo(event.offsetX, event.offsetY);
-            signatureCtx.strokeStyle = "red"; // Change signature color
+            signatureCtx.strokeStyle = "red";
             signatureCtx.lineWidth = 2;
         }
 
@@ -154,21 +171,37 @@
         function submitSignature() {
             document.getElementById("signature-section").classList.add("hidden");
             document.getElementById("photo-section").classList.remove("hidden");
+
             navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
                 video.srcObject = stream;
+                startCountdown();
             });
         }
 
-        video.addEventListener("click", capturePhoto);
+        function startCountdown() {
+            let countdown = 10;
+            const countdownElem = document.getElementById("countdown");
+
+            const timer = setInterval(() => {
+                countdown--;
+                countdownElem.innerText = countdown;
+
+                if (countdown === 0) {
+                    clearInterval(timer);
+                    capturePhoto();
+                }
+            }, 1000);
+        }
 
         function capturePhoto() {
-            finalCanvas.width = video.videoWidth;
-            finalCanvas.height = video.videoHeight;
+            finalCanvas.width = 300;
+            finalCanvas.height = 200;
             finalCtx.drawImage(video, 0, 0, finalCanvas.width, finalCanvas.height);
-            finalCtx.drawImage(signatureCanvas, finalCanvas.width - 100, finalCanvas.height - 100, 130, 50);
+            finalCtx.drawImage(signatureCanvas, finalCanvas.width - 80, finalCanvas.height - 50, 80, 40);
             finalCtx.fillStyle = "white";
-            finalCtx.font = "20px Arial";
-            finalCtx.fillText("DB Schenker Singapore - EV Launch Event 27/03/25!", 10, 30);
+            finalCtx.font = "12px Arial";
+            finalCtx.fillText("DB Schenker Singapore - EV Launch 27/03/25!", 10, 20);
+
             document.getElementById("final-image").src = finalCanvas.toDataURL("image/png");
             document.getElementById("photo-section").classList.add("hidden");
             document.getElementById("bye-section").classList.remove("hidden");
@@ -176,4 +209,3 @@
     </script>
 </body>
 </html>
-```
