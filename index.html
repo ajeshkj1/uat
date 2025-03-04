@@ -1,3 +1,6 @@
+To capture a photo when the user presses on the screen, you can add an event listener to the video element. Here's how you can modify your code to capture the photo on a screen press:
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -66,7 +69,6 @@
         <div id="photo-section" class="hidden">
             <p>Capture your photo:</p>
             <video id="video" autoplay></video>
-            <button onclick="capturePhoto()">Capture</button>
         </div>
 
         <div id="bye-section" class="hidden">
@@ -160,6 +162,8 @@
             });
         }
 
+        video.addEventListener("click", capturePhoto);
+
         function capturePhoto() {
             finalCanvas.width = video.videoWidth;
             finalCanvas.height = video.videoHeight;
@@ -167,7 +171,7 @@
             finalCtx.drawImage(signatureCanvas, finalCanvas.width - 200, finalCanvas.height - 150, 180, 100);
             finalCtx.fillStyle = "red";
             finalCtx.font = "20px Arial";
-            finalCtx.fillText("DB Schenker Singapore - EV Launch Event!", 10, 30);
+            finalCtx.fillText("DB Schenker Singapore - EV Launch Event 27/03/2025!", 10, 30);
             document.getElementById("final-image").src = finalCanvas.toDataURL("image/png");
             document.getElementById("photo-section").classList.add("hidden");
             document.getElementById("bye-section").classList.remove("hidden");
@@ -175,3 +179,4 @@
     </script>
 </body>
 </html>
+```
