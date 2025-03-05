@@ -64,6 +64,17 @@
         .keypad button:active { background-color: #505050; }
         .popup input { font-size: 24px; padding: 10px; text-align: center; width: 120px; }
         .popup button, .welcome-popup button, .quiz-popup button { padding: 10px 20px; margin-top: 10px; font-size: 18px; }
+        .close-btn {
+            background-color: #dc3545; 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            margin-top: 10px;
+            cursor: pointer; 
+            font-size: 18px; 
+            border-radius: 5px;
+        }
+        .close-btn:hover { background-color: #c82333; }
         .overlay { 
             display: none; 
             position: fixed; 
@@ -116,6 +127,7 @@
             <button onclick="checkPin()">✔</button>
         </div>
         <p id="statusMessage"></p>
+        <button class="close-btn" onclick="closePopup()">Close</button>
     </div>
 
     <!-- Quiz Popup -->
@@ -127,11 +139,6 @@
     </div>
 
     <script>
-        window.onload = function() {
-            document.getElementById("welcomePopup").style.display = "block";
-            document.getElementById("welcomeOverlay").style.display = "block";
-        };
-
         function closeWelcomePopup() {
             document.getElementById("welcomePopup").style.display = "none";
             document.getElementById("welcomeOverlay").style.display = "none";
@@ -164,8 +171,7 @@
         }
 
         function checkPin() {
-            const enteredPin = document.getElementById("pinInput").value;
-            if (enteredPin === window.correctPin) {
+            if (document.getElementById("pinInput").value === window.correctPin) {
                 document.getElementById(`booth${window.currentBooth}`).classList.add("completed");
                 closePopup();
                 checkAllCompleted();
@@ -184,8 +190,12 @@
             document.getElementById("quizOverlay").style.display = "block";
         }
 
-        function startQuiz() {
-            window.location.href = "https://ajeshkj1.github.io/ev-launch-quiz/";
+        window.onload = function() {
+            document.getElementById("welcomePopup").style.display = "block";
+            document.getElementById("welcomeOverlay").style.display = "block";
+        }
+ function startQuiz() {
+ window.location.href = "https://ajeshkj1.github.io/ev-launch-quiz/";
         }
     </script>
 
