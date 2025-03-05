@@ -3,247 +3,191 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Singapore - EV Launch Event | Quiz Time</title>
+    <title>Singapore - EV Launch Event</title>
     <style>
         body { 
             font-family: Arial, sans-serif; 
             text-align: center; 
-            padding: 20px; 
             background-color: #008080; 
             color: white;
-            font-size: calc(1rem + 0.5vw);
         }
-        .container { 
-            max-width: 400px; 
-            margin: auto; 
-            background: lightgrey; 
+        .booth-container { 
+            display: flex; 
+            justify-content: center; 
+            flex-wrap: wrap; 
+            gap: 20px; 
             padding: 20px; 
+        }
+        .booth { 
+            border: 3px solid #004085; 
+            padding: 30px; 
+            width: 200px; 
+            text-align: center; 
+            background: white; 
             border-radius: 10px; 
+            cursor: pointer; 
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); 
             color: black;
         }
-        h1, h2 { color: #eeeeee; }
-        canvas, video { 
-            border: 1px solid #000; 
+        .booth:hover { background-color: #cce5ff; }
+        .completed { background-color: #28a745 !important; color: white; pointer-events: none; }
+        .popup, .welcome-popup, .quiz-popup { 
+            display: none; 
+            position: fixed; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%); 
             background: white; 
+            padding: 30px; 
+            border-radius: 10px; 
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3); 
+            text-align: center; 
+            color: black;
         }
-        video { width: 300px; height: 200px; }
-        canvas { width: 100%; height: 150px; touch-action: none; }
-        .hidden { display: none; }
-        .correct { background-color: lightgreen; }
-        .incorrect { background-color: lightcoral; }
-        button { 
-            margin: 5px; 
-            padding: 10px; 
-            border: none; 
-            cursor: pointer; 
-            font-size: inherit;
+        .keypad { 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 10px; 
+            margin-top: 10px;
         }
-        .next-btn { background-color: #000; color: white; }
-        #final-image { max-width: 100%; margin-top: 10px; }
-        .logo { 
-            width: 150px; /* Adjust size as needed */
-            margin-bottom: 10px; 
+        .keypad button {
+            font-size: 24px;
+            padding: 10px;
+            width: 60px;
+            height: 60px;
+            border: none;
+            border-radius: 5px;
+            background-color: #808080;
+            color: white;
+            cursor: pointer;
         }
-      
-              /* Pop-up styles */
-        .popup-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(0, 0, 0, 0.8);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
+        .keypad button:active { background-color: #505050; }
+        .popup input { font-size: 24px; padding: 10px; text-align: center; width: 120px; }
+        .popup button, .welcome-popup button, .quiz-popup button { padding: 10px 20px; margin-top: 10px; font-size: 18px; }
+        .overlay { 
+            display: none; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0, 0, 0, 0.5); 
         }
-
-        .popup-box {
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-            max-width: 90%;
-            font-size: 1.5rem;
+        .logo {
+            width: 200px;
+            margin: 20px auto;
         }
-      
     </style>
 </head>
 <body>
-        <!-- Pop-up message -->
-    <div class="popup-overlay" id="popup">
-        <div class="popup-box">
-            <p><strong>No personal data is stored or recorded.</strong></p>
-            <button onclick="closePopup()">Acknowledge</button>
-        </div>
+
+    <!-- Welcome Popup -->
+    <div class="overlay" id="welcomeOverlay"></div>
+    <div class="welcome-popup" id="welcomePopup">
+        <h2>Welcome to DB Schenker Digital Experience</h2>
+        <button onclick="closeWelcomePopup()">Proceed</button>
     </div>
-    
-    <img src="db-schenker-logo.png" alt="DB Schenker Logo" class="logo"> <!-- Logo added here -->
+
+    <img src="db-schenker-logo.png" alt="DB Schenker Logo" class="logo">
     <h1>Singapore - EV Launch Event</h1>
-    <h2>Quiz Time</h2>
-    <div class="container">
-        <div id="question-section">
-            <p id="question">Question 1:</p>
-            <div id="answer-container"></div>
-            <p id="result-message"></p>
-            <button class="next-btn" onclick="nextQuestion()">Next</button>
-        </div>
+    <div class="booth-container">
+        <div class="booth" onclick="openPopup(1, '1212')" id="booth1">Booth 1</div>
+        <div class="booth" onclick="openPopup(2, '1212')" id="booth2">Booth 2</div>
+        <div class="booth" onclick="openPopup(3, '1212')" id="booth3">Booth 3</div>
+    </div>
 
-        <div id="signature-section" class="hidden">
-            <p>Please sign below:</p>
-            <canvas id="signature-pad"></canvas>
-            <button onclick="clearSignature()">Clear</button>
-            <button onclick="submitSignature()">Submit</button>
+    <!-- PIN Popup -->
+    <div class="overlay" id="overlay"></div>
+    <div class="popup" id="popup">
+        <h2>Enter 4-Digit Pin</h2>
+        <input type="password" id="pinInput" maxlength="4" readonly>
+        <div class="keypad">
+            <button onclick="enterDigit('1')">1</button>
+            <button onclick="enterDigit('2')">2</button>
+            <button onclick="enterDigit('3')">3</button>
+            <button onclick="enterDigit('4')">4</button>
+            <button onclick="enterDigit('5')">5</button>
+            <button onclick="enterDigit('6')">6</button>
+            <button onclick="enterDigit('7')">7</button>
+            <button onclick="enterDigit('8')">8</button>
+            <button onclick="enterDigit('9')">9</button>
+            <button onclick="clearPin()">⟲</button>
+            <button onclick="enterDigit('0')">0</button>
+            <button onclick="checkPin()">✔</button>
         </div>
+        <p id="statusMessage"></p>
+    </div>
 
-        <div id="photo-section" class="hidden">
-            <p>Capture your photo in <span id="countdown">10</span> seconds...</p>
-            <video id="video" autoplay></video>
-        </div>
-
-        <div id="bye-section" class="hidden">
-            <canvas id="final-canvas" class="hidden"></canvas>
-            <img id="final-image" src="" alt="Final Image">
-            <p>Thank you for attending the event</p>
-            <p>Long Press to save the image or show this message at the counter to collect your token of appreciation</p>
-        </div>
+    <!-- Quiz Popup -->
+    <div class="overlay" id="quizOverlay"></div>
+    <div class="quiz-popup" id="quizPopup">
+        <h2>Congratulations! You've completed all booths.</h2>
+        <p>Click below to start the quiz.</p>
+        <button onclick="startQuiz()">Start Quiz</button>
     </div>
 
     <script>
-       function closePopup() {
+        window.onload = function() {
+            document.getElementById("welcomePopup").style.display = "block";
+            document.getElementById("welcomeOverlay").style.display = "block";
+        };
+
+        function closeWelcomePopup() {
+            document.getElementById("welcomePopup").style.display = "none";
+            document.getElementById("welcomeOverlay").style.display = "none";
+        }
+
+        function openPopup(boothNumber, correctPin) {
+            window.currentBooth = boothNumber;
+            window.correctPin = correctPin;
+            document.getElementById("pinInput").value = "";
+            document.getElementById("statusMessage").innerText = "";
+            document.getElementById("overlay").style.display = "block";
+            document.getElementById("popup").style.display = "block";
+        }
+
+        function closePopup() {
+            document.getElementById("overlay").style.display = "none";
             document.getElementById("popup").style.display = "none";
         }
 
-        window.onload = function () {
-            document.getElementById("popup").style.display = "flex";
-        };
-        const questions = [
-            { text: "What is the primary document required for customs clearance in cross-border trade?", options: ["Invoice", "Bill of Lading", "Customs Declaration", "Packing List"], correct: "Customs Declaration" },
-            { text: "What is a common challenge faced in cross-border business?", options: ["Language barriers", "Currency exchange rates", "Regulatory compliance", "All of the above"], correct: "All of the above" },
-            { text: "Which term refers to the taxes imposed on imported goods?", options: ["Tariffs", "Quotas", "Subsidies", "Duties"], correct: "Tariffs" }
-        ];
-        let currentQuestion = 0;
-        let drawing = false;
-        const questionElem = document.getElementById("question");
-        const answerContainer = document.getElementById("answer-container");
-        const resultMessage = document.getElementById("result-message");
-        const signatureCanvas = document.getElementById("signature-pad");
-        const signatureCtx = signatureCanvas.getContext("2d");
-        const finalCanvas = document.getElementById("final-canvas");
-        const finalCtx = finalCanvas.getContext("2d");
-        const video = document.getElementById("video");
-
-        function loadQuestion() {
-            if (currentQuestion < questions.length) {
-                questionElem.innerText = `Question ${currentQuestion + 1}: ${questions[currentQuestion].text}`;
-                answerContainer.innerHTML = "";
-                resultMessage.innerText = "";
-                questions[currentQuestion].options.forEach(option => {
-                    const button = document.createElement("button");
-                    button.innerText = option;
-                    button.onclick = () => checkAnswer(option);
-                    answerContainer.appendChild(button);
-                });
-            } else {
-                document.getElementById("question-section").classList.add("hidden");
-                document.getElementById("signature-section").classList.remove("hidden");
+        function enterDigit(digit) {
+            let pinField = document.getElementById("pinInput");
+            if (pinField.value.length < 4) {
+                pinField.value += digit;
             }
         }
 
-        function checkAnswer(selected) {
-            answerContainer.innerHTML = "";
-            resultMessage.innerText = "";
-            questions[currentQuestion].options.forEach(option => {
-                const button = document.createElement("button");
-                button.innerText = option;
-                if (option === questions[currentQuestion].correct) {
-                    button.classList.add("correct");
-                } else if (option === selected) {
-                    button.classList.add("incorrect");
-                }
-                answerContainer.appendChild(button);
-            });
+        function clearPin() {
+            document.getElementById("pinInput").value = "";
+            document.getElementById("statusMessage").innerText = "";
+        }
 
-            if (selected === questions[currentQuestion].correct) {
-                resultMessage.innerText = "Correct!";
-                resultMessage.style.color = "green";
+        function checkPin() {
+            const enteredPin = document.getElementById("pinInput").value;
+            if (enteredPin === window.correctPin) {
+                document.getElementById(`booth${window.currentBooth}`).classList.add("completed");
+                closePopup();
+                checkAllCompleted();
             } else {
-                resultMessage.innerText = "Wrong! The correct answer is: " + questions[currentQuestion].correct;
-                resultMessage.style.color = "red";
+                document.getElementById("statusMessage").innerText = "Incorrect PIN. Try again.";
             }
         }
 
-        function nextQuestion() {
-            currentQuestion++;
-            loadQuestion();
-        }
-
-        loadQuestion();
-
-        signatureCanvas.addEventListener("pointerdown", startDrawing);
-        signatureCanvas.addEventListener("pointermove", draw);
-        signatureCanvas.addEventListener("pointerup", stopDrawing);
-
-        function startDrawing(event) {
-            drawing = true;
-            signatureCtx.beginPath();
-            signatureCtx.moveTo(event.offsetX, event.offsetY);
-            signatureCtx.strokeStyle = "red";
-            signatureCtx.lineWidth = 2;
-        }
-
-        function draw(event) {
-            if (!drawing) return;
-            signatureCtx.lineTo(event.offsetX, event.offsetY);
-            signatureCtx.stroke();
-        }
-
-        function stopDrawing() {
-            drawing = false;
-        }
-
-        function clearSignature() {
-            signatureCtx.clearRect(0, 0, signatureCanvas.width, signatureCanvas.height);
-        }
-
-        function submitSignature() {
-            document.getElementById("signature-section").classList.add("hidden");
-            document.getElementById("photo-section").classList.remove("hidden");
-
-            navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
-                video.srcObject = stream;
-                startCountdown();
-            });
-        }
-
-        function startCountdown() {
-            let countdown = 1;
-            const countdownElem = document.getElementById("countdown");
-
-            const timer = setInterval(() => {
-                countdown--;
-                countdownElem.innerText = countdown;
-
-                if (countdown === 0) {
-                    clearInterval(timer);
-                    capturePhoto();
+        function checkAllCompleted() {
+            for (let i = 1; i <= 3; i++) {
+                if (!document.getElementById(`booth${i}`).classList.contains("completed")) {
+                    return;
                 }
-            }, 1000);
+            }
+            document.getElementById("quizPopup").style.display = "block";
+            document.getElementById("quizOverlay").style.display = "block";
         }
 
-        function capturePhoto() {
-            finalCanvas.width = 400;
-            finalCanvas.height = 500;
-            finalCtx.drawImage(video, 0, 0, finalCanvas.width, finalCanvas.height);
-            finalCtx.drawImage(signatureCanvas, finalCanvas.width - 80, finalCanvas.height - 50, 80, 40);
-            finalCtx.fillStyle = "white";
-            finalCtx.font = "12px Arial";
-            finalCtx.fillText("DB Schenker Singapore - EV Launch 27/03/25", 5, 490);
-
-            document.getElementById("final-image").src = finalCanvas.toDataURL("image/png");
-            document.getElementById("photo-section").classList.add("hidden");
-            document.getElementById("bye-section").classList.remove("hidden");
+        function startQuiz() {
+            window.location.href = "https://ajeshkj1.github.io/ev-launch-quiz/";
         }
     </script>
+
 </body>
 </html>
